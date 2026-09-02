@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from Crypto.Hash import SHA256
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 # 1. Carrega o cofre oculto de senhas
 load_dotenv()
@@ -21,7 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # 4. Transforma a senha limpa do usuário em um código inquebrável
 def criptografar_senha(senha_limpa: str) -> str:
     # Transforma o texto puro digitado pelo usuário em bytes
@@ -86,4 +86,24 @@ def cadastrar_usuario(
     return {"status": "Sucesso", "usuario_id": novo_usuario.id, "email": novo_usuario.email}
 
 
+class loginRequest(BaseModel):
+    email: str
+    senha: str
+@app.post("/Login")
+def Login_usuario(request: loginRequest, db: Session = Depends(get_db)):
+    if not request.email or not request.senha:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email e senha são obrigatórios")
 
+    # Busca o Usuario pelo email
+    usuario = db.query(Usuario).filter(Usuario.email == request.email).first()
+
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha incorretos")
+
+    #  alinhado perfeitamente na mesma margem dos IFs!
+    senha_criptografada = criptografar_senha(request.senha)
+    
+    if usuario.senha != senha_criptografada:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha incorretos")
+    
+    return {"status": "Sucesso", "Usuario": usuario.nome, "email": usuario.email}
