@@ -1,33 +1,48 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Document</title>
+    <title>SaaS Agendamento - Bento Grid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-zinc-100 min-h-screen flex items-center justify-center p-4">
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+    <!-- CONTAINER PRINCIPAL DO BENTO GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
         
-        <!-- Bloco de Boas-Vindas  -->
-        <div class="bg-white rounded-3xl p-8 shadow-sm flex flex-col justify-between">
+        <!-- Bloco de Boas-Vindas -->
+        <div class="bg-white rounded-3xl p-8 shadow-sm flex flex-col justify-between min-h-[350px]">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800 tracking-tight">AgendaÁgil</h1>
-               
                 <p class="text-emerald-600 text-sm font-medium mt-1">SaaS de Agendamentos</p>
             </div>
-            <p class="text-slate-500 text-sm mt-8">Gerencie seus horários com a plataforma mais rápida e minimalista do mercado.</p>
+            <p class="text-slate-500 text-sm mt-8">Gerencie seus horários e clientes com a plataforma mais rápida e minimalista do mercado.</p>
         </div>
 
-        <!--Bloco do Formulário-->
-        <div class="md:col-span-2 bg-white rounded-3xl p-8 shadow-sm flex flex-col gap-6">
-            <h2 class="text-xl font-bold text-slate-800">Acesse sua Conta</h2>
+        <!-- CAIXA 2: Bloco do Formulário (Ocupa 2 colunas) -->
+        <div class="md:col-span-2 bg-white rounded-3xl p-8 shadow-sm flex flex-col justify-center gap-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Acesse sua Conta</h2>
             
+            <!-- Bloco Estruturado do E-mail -->
+            <div class="flex flex-col gap-2">
+                <label for="email" class="text-xs font-semibold text-slate-500 ml-1">E-mail Corporativo</label>
+                <input type="email" id="email" class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-slate-800 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" placeholder="nome@empresa.com">
+            </div>
+
+            <!-- Bloco Estruturado da Senha -->
+            <div class="flex flex-col gap-2">
+                <label for="senha" class="text-xs font-semibold text-slate-500 ml-1">Senha de Acesso</label>
+                <input type="password" id="senha" class="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-slate-800 placeholder-zinc-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" placeholder="••••••••">
+            </div>
+
+            <!-- Botão de Ação -->
+            <button id="btn-login" class="w-full py-3 mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-sm shadow-emerald-600/10 transition-all duration-200">Acessar Plataforma</button>
         </div>
 
     </div>
 
+    <!-- Conecta o arquivo de lógica do JavaScript -->
+    <script src="script.js"></script>
 </body>
-
 </html>
