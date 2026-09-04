@@ -89,6 +89,12 @@ def cadastrar_usuario(
 class loginRequest(BaseModel):
     email: str
     senha: str
+
+class AgendamentoRequest(BaseModel):
+    cliente_nome: str
+    servico: str
+    data_hora: str
+
 @app.post("/Login")
 def Login_usuario(request: loginRequest, db: Session = Depends(get_db)):
     if not request.email or not request.senha:
@@ -107,3 +113,40 @@ def Login_usuario(request: loginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha incorretos")
     
     return {"status": "Sucesso", "Usuario": usuario.nome, "email": usuario.email}
+
+
+class Agendamento(Base):
+    __tablename__ = "agendamentos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    cliente_nome = Column(String(100), nullable=False)
+    servico = Column(String(100), nullable=False)
+    data_hora = Column(String(50), unique=True, nullable=False)
+
+
+Base.metadata.create_all(bind=engine)
+
+@app.post("/agendar")
+def agendar(agendamento: AgendamentoRequest, db: Session = Depends(get_db)):
+    # Verifica se já existe um agendamento para a mesma data e hora
+    agendamento_existente = db.query(Agendamento).filter(Agendamento.data_hora == agendamento.data_hora).first()
+    if agendamento_existente:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Já existe um agendamento para esta data e hora")
+    else:
+        novo_agendamento = Agendamento(
+            cliente_nome=agendamento.cliente_nome,
+            servico=agendamento.servico,
+            data_hora=agendamento.data_hora
+        )
+        # Salva o novo agendamento no banco de dados
+        db.add(novo_agendamento)
+        db.commit()
+        db.refresh(novo_agendamento)
+        return {"Status": "Sucesso", "Agendamento":{
+            "Cliente": novo_agendamento.cliente_nome, "Serviço": novo_agendamento.servico, "Data e Hora": novo_agendamento.data_hora}}
+
+# Verifica os horários disponíveis para agendamento
+@app.get("/agendamentos")
+def Listar_agendamentos(db:Session = Depends(get_db)):
+    agendamentos = db.query(Agendamento).all()
+    return {"Status": "Sucesso", "Dados": agendamentos}
