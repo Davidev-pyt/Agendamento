@@ -150,3 +150,13 @@ def agendar(agendamento: AgendamentoRequest, db: Session = Depends(get_db)):
 def Listar_agendamentos(db:Session = Depends(get_db)):
     agendamentos = db.query(Agendamento).all()
     return {"Status": "Sucesso", "Dados": agendamentos}
+
+@app.delete("/agendar/{agendamento_id}")
+def Delete_agendamento(agendamento_id: int, db: Session = Depends(get_db)):
+    item = db.query(Agendamento).filter(Agendamento.id == agendamento_id).first()
+    if None == item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agendamento não encontrado")
+    else:
+        db.delete(item)
+        db.commit()
+    return {"Status": "Sucesso", "Mensagem": f"Agendamento de ID {agendamento_id} deletado com sucesso!"}
