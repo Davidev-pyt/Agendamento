@@ -73,16 +73,18 @@ async function buscarAgendamentos() {
                 // Cria a caixinha visual do agendamento (Card premium)
                 const card = document.createElement('div');
                 card.className = "bg-zinc-50 border border-zinc-100 rounded-2xl p-4 flex justify-between items-center transition-all hover:border-emerald-200";
-                
+
                 card.innerHTML = `
-                    <div>
-                        <p class="font-bold text-slate-800 text-sm">${item.cliente_nome}</p>
-                        <p class="text-xs text-slate-400 font-medium">${item.servico}</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">${item.data_hora}</span>
-                    </div>
-                `;
+                  <div>
+                      <p class="font-bold text-slate-800 text-sm">${item.cliente_nome}</p>
+                      <p class="text-xs text-slate-400 font-medium">${item.servico}</p>
+                 </div>
+    <!-- Apenas uma div de horário contendo o botão de X integrado! -->
+                  <div class="text-right flex items-center gap-3">
+                     <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">${item.data_hora}</span>
+                     <button onclick="removerAgendamento(${item.id})" class="text-rose-400 hover:text-rose-600 font-bold transition-all p-1 text-sm">✕</button>
+                  </div>
+            `;
 
                // TRIAGEM INTELIGENTE DE TURNOS: Extrai os dois primeiros dígitos da hora (ex: "09:00" -> 9)
                 const apenasHora = item.data_hora.includes('T') ? item.data_hora.split('T')[1] : item.data_hora;
@@ -159,3 +161,22 @@ document.getElementById('btn-agendar').addEventListener('click', async function(
         alert('Não foi possível conectar ao servidor Back-End. Verifique se o Python está ligado!');
     }
 });
+
+async function removerAgendamento(id) {
+    try {
+       const resposta = await fetch(`http://localhost:8000/agendar/${id}`, {
+            method: 'DELETE'
+        });
+        const dadosServidor = await resposta.json();
+        if (resposta.ok) {
+            console.log('Agendamento removido com sucesso:', dadosServidor);
+            alert('Agendamento removido com sucesso!');
+            buscarAgendamentos();
+        } else {
+            alert(dadosServidor.detail || 'Não foi possível remover o agendamento.');
+        }
+    } catch (erro) {
+        console.error('Erro ao remover agendamento:', erro);
+        alert('Não foi possível conectar ao servidor Back-End. Verifique se o Python está ligado!');
+    }
+}
