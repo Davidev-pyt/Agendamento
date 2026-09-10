@@ -41,9 +41,10 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# 👥 2. MODELO DA TABELA DE USUÁRIOS
+#  MODELO DA TABELA DE USUÁRIOS
 class Usuario(Base):
     __tablename__ = "usuarios"
+    cargo = Column(String(20), nullable=False, default="cliente")
 
     id = Column(Integer, primary_key=True, index=True)
     nome = Column(String(100), nullable=False)
@@ -52,7 +53,7 @@ class Usuario(Base):
     # A coluna de senha reserva 64 caracteres exatos para o Hash hexadecimal do SHA-256
     senha = Column(String(64), nullable=False)
 
-# 🔌 3. Função auxiliar (Injeção de Dependência) para abrir/fechar conexões com o banco
+# Função auxiliar (Injeção de Dependência) para abrir/fechar conexões com o banco
 def get_db():
     db = SessionLocal()
     try:
@@ -64,6 +65,7 @@ Base.metadata.create_all(bind=engine)  # Cria as tabelas no banco de dados, se n
 
 @app.post("/Cadastro")
 def cadastrar_usuario(
+    cargo: str,
     nome: str,
     email: str,
     senha: str,
@@ -78,7 +80,7 @@ def cadastrar_usuario(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email já cadastrado")
     
     # Cria novo usuário
-    novo_usuario = Usuario(nome=nome, email=email, senha=senha_criptografada)
+    novo_usuario = Usuario(nome=nome, email=email, senha=senha_criptografada, cargo=cargo)
     db.add(novo_usuario)
     db.commit()
     db.refresh(novo_usuario)
@@ -112,7 +114,7 @@ def Login_usuario(request: loginRequest, db: Session = Depends(get_db)):
     if usuario.senha != senha_criptografada:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha incorretos")
     
-    return {"status": "Sucesso", "Usuario": usuario.nome, "email": usuario.email}
+    return {"status": "Sucesso", "Usuario": usuario.nome, "email": usuario.email, "cargo": usuario.cargo}
 
 
 class Agendamento(Base):
