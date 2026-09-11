@@ -186,6 +186,7 @@ async function removerAgendamento(id) {
         const dadosServidor = await resposta.json();
         
         if (resposta.ok) {
+            localStorage.setItem('user_cargo', dadosServidor.cargo);
             Swal.fire({
                 title: 'Removido!',
                 text: 'O agendamento foi cancelado com sucesso.',
@@ -194,6 +195,25 @@ async function removerAgendamento(id) {
             });
             console.log('Agendamento removido com sucesso:', dadosServidor);
             buscarAgendamentos();
+            // Recupera o cargo salvo no navegador
+        const cargoLogado = localStorage.getItem('user_cargo');
+
+// Cria o botão de excluir APENAS se o usuário for prestador
+       const botaoExcluir = cargoLogado === 'prestador' 
+            ? `<button onclick="removerAgendamento(${item.id})" class="text-rose-400 hover:text-rose-600 font-bold transition-all p-1 text-sm">✕</button>` 
+         : ''; // Se for cliente, fica vazio!
+
+     card.innerHTML = ` 
+        <div>
+          <p class="font-bold text-slate-800 text-sm">${item.cliente_nome}</p>
+          <p class="text-xs text-slate-400 font-medium">${item.servico}</p>
+        </div>
+        <div class="text-right flex items-center gap-3">
+          <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full border border-emerald-100">${item.data_hora}</span>
+            ${botaoExcluir} <!-- Injeta o botão ou o vazio dinamicamente! -->
+        </div>
+    `;
+
         } else {
             Swal.fire({
                 title: 'Ops!',
